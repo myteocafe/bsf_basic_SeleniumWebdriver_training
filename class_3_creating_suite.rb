@@ -5,11 +5,17 @@ require 'test/unit/assertions'
 include Test::Unit::Assertions
 
 def click_on_view_details_button
-  view_details_button = @driver.find_element(:xpath, '//input[@value = "View Details"]')
-  view_details_button.click
+  view_details_button = @driver.find_elements(:xpath, '//input[@value = "View Details"]')
+  puts view_details_button.size
+  view_details_button[2].click
 end
 
 def click_on_adopt_button
+  adopt_button = @driver.find_element(:xpath, '//input[@value = "Adopt Me!"]')
+  adopt_button.click
+end
+
+def select
   adopt_button = @driver.find_element(:xpath, '//input[@value = "Adopt Me!"]')
   adopt_button.click
 end
@@ -45,12 +51,18 @@ def place_order
   place_order_button.click
 end
 
-def validate_that_puppie_was_adpopted()
-  notice_message = @driver.find_element(:xpath, '//p[@id = "notice"]')
-  #expcted - actual
-  assert_equal 'Thank you for adopting a puppies!', notice_message.text,  'unable to adopt puppie :('
+def select_chew_toy
+  list_of_check_boxes = @driver.find_element(:xpath, '//table/trbody/tr/td/input[@type="checkbox"]')
+  puts list_of_check_boxes.size
 
 end
+
+def validate_adopted
+  notice_message = @driver.find_element(:xpath, '//p[@id = "notice"]')
+  #expcted - actual
+  assert_equal 'Thank you for adopting a puppy!', notice_message.text,  'unable to adopt puppie :('
+end
+
 
 
 class AdoptSimple < Test::Unit::TestCase
@@ -71,7 +83,31 @@ class AdoptSimple < Test::Unit::TestCase
   select_pay_type('Check')
   place_order
   sleep 3
-  validate_that_puppie_was_adpopted
+  validate_adopted
+  sleep 5
+  @driver.quit
+end
+
+
+class AdoptChecklist < Test::Unit::TestCase
+
+  #Adopt a puppy. We are adopting the first puppy in the list
+  @driver = Selenium::WebDriver.for :firefox
+  @driver.navigate.to 'http://puppies.herokuapp.com/'
+  @driver.manage().window().maximize()
+  click_on_view_details_button
+  sleep 3
+  click_on_adopt_button
+  sleep 3
+  click_on_complete_adoption_button
+  sleep 3
+  enter_name('Homer Simpson')
+  enter_address('Evergreen Terrace 742')
+  enter_email('test@bsf.com')
+  select_pay_type('Check')
+  place_order
+  sleep 3
+  validate_adopted
   sleep 5
   @driver.quit
 end
